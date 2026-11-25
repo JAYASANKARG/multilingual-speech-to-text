@@ -1,4 +1,5 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
+import { XIcon } from './icons'
 
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
 
@@ -19,7 +20,9 @@ export default function Modal({ role = 'dialog', labelledBy, onClose, children, 
     const root = ref.current
     const target =
       (initialFocus && root?.querySelector<HTMLElement>(initialFocus)) ||
-      root?.querySelector<HTMLElement>(FOCUSABLE)
+      Array.from(root?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).find(
+        (node) => !node.hasAttribute('data-modal-close'),
+      )
     target?.focus()
     return () => previous?.focus?.()
   }, [initialFocus])
@@ -56,6 +59,15 @@ export default function Modal({ role = 'dialog', labelledBy, onClose, children, 
         aria-labelledby={labelledBy}
         onKeyDown={onKeyDown}
       >
+        <button
+          type="button"
+          className="modal-close"
+          data-modal-close
+          aria-label="Close dialog"
+          onClick={onClose}
+        >
+          <XIcon />
+        </button>
         {children}
       </div>
     </div>

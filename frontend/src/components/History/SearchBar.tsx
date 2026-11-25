@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Language } from '../../api/types'
+import { ChevronDownIcon, SearchIcon, XIcon } from '../icons'
 
 interface Props {
   languages: Language[]
@@ -35,29 +36,40 @@ export default function SearchBar({ languages, q, language, onQueryChange, onLan
 
   return (
     <div className="search-bar">
-      <input
-        type="search"
-        aria-label="Search transcriptions"
-        placeholder="Search text…"
-        value={draft}
-        onChange={(e) => onInput(e.target.value)}
-        maxLength={200}
-      />
-      <select
-        aria-label="Filter by language"
-        value={language}
-        onChange={(e) => onLanguageChange(e.target.value)}
-      >
-        <option value="">All languages</option>
-        {languages
-          .filter((l) => l.code !== 'auto')
-          .map((l) => (
-            <option key={l.code} value={l.code}>
-              {l.name}
-            </option>
-          ))}
-      </select>
-      {active && <button onClick={onClear}>Clear</button>}
+      <span className="search-field">
+        <SearchIcon />
+        <input
+          type="search"
+          aria-label="Search transcriptions"
+          placeholder="Search text…"
+          value={draft}
+          onChange={(e) => onInput(e.target.value)}
+          maxLength={200}
+        />
+      </span>
+      <span className="select-wrap">
+        <select
+          aria-label="Filter by language"
+          value={language}
+          onChange={(e) => onLanguageChange(e.target.value)}
+        >
+          <option value="">All languages</option>
+          {languages
+            .filter((l) => l.code !== 'auto')
+            .map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.name}
+              </option>
+            ))}
+        </select>
+        <ChevronDownIcon />
+      </span>
+      {active && (
+        <button className="clear-filters" onClick={onClear}>
+          <XIcon />
+          Clear
+        </button>
+      )}
     </div>
   )
 }

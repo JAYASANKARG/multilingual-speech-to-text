@@ -57,45 +57,62 @@ export default function EntryDialog({ entry, onSave, onDelete, onClose }: Props)
 
   return (
     <Modal labelledBy="entry-title" onClose={onClose}>
-      <h2 id="entry-title">{creating ? 'Add entry' : 'Transcription'}</h2>
+      <header className="entry-head">
+        <p className="eyebrow">{creating ? 'Manual entry' : 'Saved transcript'}</p>
+        <h2 id="entry-title">{creating ? 'Add entry' : 'Transcription'}</h2>
+      </header>
 
       {entry && (
         <dl className="meta">
-          <dt>Created</dt>
-          <dd>{fmt(entry.created_at)}</dd>
-          <dt>Last modified</dt>
-          <dd>{fmt(entry.updated_at)}</dd>
-          <dt>Languages</dt>
-          <dd>
-            {entry.languages.map((l) => (
-              <span key={l} className="chip">
-                {l}
-              </span>
-            ))}
-          </dd>
-          <dt>Engine</dt>
-          <dd>{entry.engine ?? 'Typed by hand'}</dd>
+          <div className="meta-item">
+            <dt>Created</dt>
+            <dd>{fmt(entry.created_at)}</dd>
+          </div>
+          <div className="meta-item">
+            <dt>Last modified</dt>
+            <dd>{fmt(entry.updated_at)}</dd>
+          </div>
+          <div className="meta-item meta-wide">
+            <dt>Languages</dt>
+            <dd className="meta-chips">
+              {entry.languages.map((l) => (
+                <span key={l} className="chip">
+                  {l}
+                </span>
+              ))}
+            </dd>
+          </div>
+          <div className="meta-item meta-wide">
+            <dt>Engine</dt>
+            <dd>{entry.engine ?? 'Typed by hand'}</dd>
+          </div>
           {entry.status === 'interrupted' && (
-            <>
+            <div className="meta-item meta-wide">
               <dt>Status</dt>
-              <dd>Interrupted (saved before the session ended normally)</dd>
-            </>
+              <dd className="meta-warn">
+                Interrupted (saved before the session ended normally)
+              </dd>
+            </div>
           )}
         </dl>
       )}
 
       {editing ? (
         <textarea
+          className="entry-editor"
           aria-label="Transcription text"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           disabled={busy}
           maxLength={50000}
+          autoFocus={creating}
         />
       ) : (
-        <p className="entry-text">{entry?.text}</p>
+        <div className="entry-read">
+          <p className="entry-text">{entry?.text}</p>
+          {entry && <ExportActions text={entry.text} createdAt={entry.created_at} />}
+        </div>
       )}
-      {entry && !editing && <ExportActions text={entry.text} createdAt={entry.created_at} />}
 
       {error && (
         <p role="alert" className="message error">
@@ -126,7 +143,7 @@ export default function EntryDialog({ entry, onSave, onDelete, onClose }: Props)
         ) : (
           <>
             {onDelete && (
-              <button className="danger" onClick={() => setConfirming(true)}>
+              <button className="danger entry-delete" onClick={() => setConfirming(true)}>
                 Delete
               </button>
             )}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CopyIcon, DownloadIcon } from '../icons'
 
 interface Props {
   text: string
@@ -43,10 +44,24 @@ export default function ExportActions({ text, createdAt }: Props) {
 
   return (
     <div className="export-actions">
-      <button onClick={copy}>Copy</button>
-      <button onClick={download}>Download .txt</button>
-      {copied && <span role="status">Copied</span>}
-      {error && <span role="alert">{error}</span>}
+      <button className="export-button" onClick={copy}>
+        <CopyIcon />
+        Copy
+      </button>
+      <button className="export-button" onClick={download}>
+        <DownloadIcon />
+        Download .txt
+      </button>
+      {copied && (
+        <span role="status" className="export-status">
+          Copied
+        </span>
+      )}
+      {error && (
+        <span role="alert" className="export-error">
+          {error}
+        </span>
+      )}
     </div>
   )
 }

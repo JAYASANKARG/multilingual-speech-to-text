@@ -5,8 +5,10 @@ import { useLanguages } from '../../hooks/useLanguages'
 import { useQuota } from '../../hooks/useQuota'
 import { useTranscriber } from '../../hooks/useTranscriber'
 import { hasConsent, saveConsent } from '../../lib/consent'
+import { AlertIcon, MicIcon, StopIcon } from '../icons'
 import PrivacyNotice from '../PrivacyNotice'
 import LanguagePicker from './LanguagePicker'
+import LevelRibbon from './LevelRibbon'
 import './Recorder.css'
 
 const BADGE: Record<UiState, string> = {
@@ -84,30 +86,94 @@ export default function Recorder({ onSaved }: { onSaved?: () => void }) {
 
   return (
     <div className="recorder">
-      <LanguagePicker languages={languages} value={language} onChange={setLanguage} disabled={busy} />
+      <div className="recorder-head">
+        <div>
+          <p className="eyebrow eyebrow-console">Session</p>
+          <h2 className="recorder-sub">Live multilingual dictation</h2>
+        </div>
+        <span className={`tally tally-${t.state}`} aria-live="polite">
+          <span className="tally-dot" aria-hidden="true" />
+          {BADGE[t.state]}
+        </span>
+      </div>
+
+      <div className="recorder-top">
+        <LanguagePicker
+          languages={languages}
+          value={language}
+          onChange={setLanguage}
+          disabled={busy}
+        />
+        <div className="console-note">
+          <span className="console-note-label">Max</span>
+          <span className="console-note-value">05:00</span>
+        </div>
+      </div>
+
+      <div className={`transcript-screen${t.state === 'listening' ? ' is-listening' : ''}`}>
+        <div className="transcript-head">
+          <span className="eyebrow eyebrow-console">Live transcript</span>
+          <LevelRibbon levelRef={t.levelRef} active={t.state === 'listening'} />
+        </div>
+        <div className="transcript" aria-live="polite" aria-label="Live transcript">
+          {text === '' && busy && <span className="placeholder">Start speaking…</span>}
+          {text === '' && !busy && (
+            <span className="placeholder">
+              Press start, then speak. Hindi, English, or both in one sentence.
+            </span>
+          )}
+          {t.segments.filter(Boolean).map((segment, i) => (
+            <span key={i} className="final">
+              {segment}{' '}
+            </span>
+          ))}
+          {t.inProgress && <span className="interim">{t.inProgress}</span>}
+        </div>
+      </div>
+
       <div className="recorder-controls">
         {busy ? (
-          <button className="primary" onClick={t.stop} disabled={t.state === 'processing'}>
+          <button
+            className="primary record-button"
+            onClick={t.stop}
+            disabled={t.state === 'processing'}
+          >
+            <StopIcon />
             Stop
           </button>
         ) : (
-          <button className="primary" onClick={onStart} disabled={exhausted}>
+          <button className="primary record-button" onClick={onStart} disabled={exhausted}>
+            <MicIcon />
             {t.state === 'idle' ? 'Start' : 'Start again'}
           </button>
         )}
-        <span className={`badge badge-${t.state}`}>{BADGE[t.state]}</span>
+        <div className="recorder-status">
+          {quota && !exhausted && (
+            <>
+              <div className="quota" aria-hidden="true">
+                {Array.from({ length: quota.limit }, (_, i) => (
+                  <span key={i} className={`quota-dot${i < quota.remaining ? ' on' : ''}`} />
+                ))}
+              </div>
+              <p className="quota-text">
+                {quota.remaining} of {quota.limit} recordings left this hour
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="recorder-hints" aria-hidden="true">
+        <span>Up to 5 minutes</span>
+        <span>Auto-saves on stop</span>
+        <span>15 s silence stop</span>
       </div>
 
       {exhausted && (
-        <p role="status" className="message">
+        <p role="status" className="message message-console">
           You have used all {quota.limit} recordings for this hour.
           {quota.resets_at && ` Try again at ${new Date(quota.resets_at).toLocaleTimeString()}.`} You can
           still browse and edit your history.
-        </p>
-      )}
-      {quota && !exhausted && (
-        <p className="hint">
-          {quota.remaining} of {quota.limit} recordings left this hour
         </p>
       )}
 
@@ -115,24 +181,15 @@ export default function Recorder({ onSaved }: { onSaved?: () => void }) {
         <p className="hint">Waking up the server… this can take up to a minute.</p>
       )}
 
-      <div className="transcript" aria-live="polite" aria-label="Live transcript">
-        {text === '' && busy && <span className="placeholder">Start speaking…</span>}
-        {t.segments.filter(Boolean).map((segment, i) => (
-          <span key={i} className="final">
-            {segment}{' '}
-          </span>
-        ))}
-        {t.inProgress && <span className="interim">{t.inProgress}</span>}
-      </div>
-
       {t.error && (
-        <p role="alert" className="message error">
+        <p role="alert" className="message message-console error">
+          <AlertIcon className="message-icon" />
           {errorHelp(t.error)}
           {t.error.retry_at && ` You can try again at ${new Date(t.error.retry_at).toLocaleTimeString()}.`}
         </p>
       )}
       {t.outcome && (
-        <p role="status" className="message">
+        <p role="status" className="message message-console">
           {outcomeText(t.outcome)}
         </p>
       )}

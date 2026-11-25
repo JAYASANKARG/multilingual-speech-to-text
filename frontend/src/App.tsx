@@ -3,7 +3,7 @@ import './App.css'
 import type { Transcription } from './api/types'
 import EntryDialog from './components/EntryDialog/EntryDialog'
 import History from './components/History/History'
-import SearchBar from './components/History/SearchBar'
+import { BrandGlyph, ShieldIcon } from './components/icons'
 import Recorder from './components/Recorder/Recorder'
 import { useHistory } from './hooks/useHistory'
 import { useLanguages } from './hooks/useLanguages'
@@ -17,25 +17,30 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>Speech to Text</h1>
-        <p className="tagline">Speak in Hindi, English, or both. Watch it appear live.</p>
+      <header className="masthead">
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true">
+            <BrandGlyph />
+          </span>
+          <div className="brand-copy">
+            <p className="brand-eyebrow">Multilingual · Live</p>
+            <h1>Speech to Text</h1>
+            <p className="tagline">Speak Hindi, English, or both. Watch it become text.</p>
+          </div>
+        </div>
+        <div className="masthead-meta">
+          <span className="engine-tag">
+            <span className="engine-dot" aria-hidden="true" />
+            Gemini Live
+          </span>
+        </div>
       </header>
-      <main className="app-main">
-        <section aria-labelledby="recorder-h" className="card">
-          <h2 id="recorder-h">Record</h2>
+
+      <main className="workspace">
+        <section aria-label="Recorder" className="recorder-panel">
           <Recorder onSaved={history.refresh} />
         </section>
-        <section aria-labelledby="history-h" className="card">
-          <h2 id="history-h">History</h2>
-          <SearchBar
-            languages={languages}
-            q={history.q}
-            language={history.language}
-            onQueryChange={history.setQuery}
-            onLanguageChange={history.setLanguage}
-            onClear={history.clearFilters}
-          />
+        <section aria-labelledby="history-h" className="panel history-panel">
           <History
             items={history.items}
             loading={history.loading}
@@ -43,6 +48,11 @@ export default function App() {
             error={history.error}
             hasMore={history.hasMore}
             filtered={history.filtered}
+            languages={languages}
+            q={history.q}
+            language={history.language}
+            onQueryChange={history.setQuery}
+            onLanguageChange={history.setLanguage}
             onOpen={(entry) => setDialog({ kind: 'entry', entry })}
             onLoadMore={history.loadMore}
             onRetry={history.refresh}
@@ -52,12 +62,16 @@ export default function App() {
         </section>
       </main>
 
+      <footer className="footer">
+        <span className="footer-note">
+          <ShieldIcon className="icon footer-icon" />
+          Audio is streamed for transcription and never stored.
+        </span>
+        <span className="footer-tech">FastAPI · Gemini Live · PostgreSQL</span>
+      </footer>
+
       {dialog?.kind === 'new' && (
-        <EntryDialog
-          entry={null}
-          onSave={history.add}
-          onClose={() => setDialog(null)}
-        />
+        <EntryDialog entry={null} onSave={history.add} onClose={() => setDialog(null)} />
       )}
       {dialog?.kind === 'entry' && (
         <EntryDialog

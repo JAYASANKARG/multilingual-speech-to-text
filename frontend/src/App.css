@@ -1,32 +1,218 @@
 .app {
-  max-width: 880px;
+  width: min(1240px, 100%);
   margin: 0 auto;
-  padding: var(--space);
+  padding: 30px clamp(16px, 3.2vw, 44px) 36px;
 }
 
-.app-header h1 {
-  margin: 8px 0 0;
-  font-size: 1.6rem;
+/* ---- Masthead ------------------------------------------------------------------------------ */
+.masthead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  min-width: 0;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  margin-top: 2px;
+  border-radius: 14px;
+  background: var(--console);
+  color: var(--vermilion);
+  box-shadow: var(--shadow-console);
+}
+
+.brand-mark svg {
+  width: 24px;
+  height: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .brand-mark {
+    border: 1px solid var(--console-rule-strong);
+    background: var(--console-2);
+    color: #f0836b;
+  }
+}
+
+.brand-copy {
+  min-width: 0;
+}
+
+.brand-eyebrow {
+  margin-bottom: 5px;
+  color: var(--vermilion-deep);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.brand h1 {
+  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
 .tagline {
-  margin: 4px 0 var(--space);
-  color: var(--muted);
+  max-width: 54ch;
+  margin-top: 7px;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  text-wrap: pretty;
 }
 
-.app-main {
+.masthead-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 4px;
+}
+
+.engine-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 11px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.engine-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent);
+}
+
+/* ---- Workspace ----------------------------------------------------------------------------- */
+.workspace {
   display: grid;
-  gap: var(--space);
+  align-items: start;
+  gap: 22px;
 }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--space);
+.panel {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-xl);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
 }
 
-.card h2 {
-  margin: 0 0 12px;
-  font-size: 1.1rem;
+.history-panel {
+  min-height: 420px;
+  padding: 24px 22px 22px;
+}
+
+/* ---- Footer -------------------------------------------------------------------------------- */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 38px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+}
+
+.footer-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.footer-icon {
+  width: 15px;
+  height: 15px;
+  opacity: 0.8;
+}
+
+.footer-tech {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---- Responsive ---------------------------------------------------------------------------- */
+@media (min-width: 1024px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1.3fr) minmax(360px, 1fr);
+    gap: 24px;
+  }
+
+  .workspace > .recorder-panel {
+    position: sticky;
+    top: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app {
+    padding-top: 20px;
+  }
+
+  .masthead {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+  }
+
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .masthead-meta {
+    padding-bottom: 0;
+  }
+
+  .history-panel {
+    padding: 20px 16px 18px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .masthead,
+  .recorder-panel,
+  .history-panel {
+    animation: rise-in 550ms var(--ease-out) both;
+  }
+
+  .recorder-panel {
+    animation-delay: 50ms;
+  }
+
+  .history-panel {
+    animation-delay: 100ms;
+  }
 }

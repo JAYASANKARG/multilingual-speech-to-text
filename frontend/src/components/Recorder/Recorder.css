@@ -1,99 +1,420 @@
+/* The recording console: an ink slab on warm paper. */
+.recorder-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 26px;
+  border: 1px solid var(--console-rule);
+  border-radius: var(--radius-xl);
+  background: var(--console);
+  color: var(--console-text);
+  box-shadow: var(--shadow-console);
+}
+
+.recorder-panel::before {
+  content: '';
+  position: absolute;
+  inset: -34% -18% auto;
+  z-index: -1;
+  height: 380px;
+  background: radial-gradient(closest-side, rgba(196, 69, 42, 0.22), transparent);
+  pointer-events: none;
+}
+
+.recorder-panel button:focus-visible {
+  outline-color: #f0836b;
+}
+
+.recorder {
+  position: relative;
+  display: grid;
+  gap: 16px;
+}
+
+/* ---- Header -------------------------------------------------------------------------------- */
+.recorder-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.eyebrow-console {
+  color: var(--console-muted);
+}
+
+.recorder-sub {
+  margin-top: 5px;
+  color: var(--console-text);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.tally {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--console-rule);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--console-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tally-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.tally-listening {
+  border-color: rgba(240, 131, 107, 0.35);
+  background: rgba(196, 69, 42, 0.14);
+  color: #f0836b;
+}
+
+.tally-listening .tally-dot {
+  animation: pulse-dot 1.6s var(--ease-out) infinite;
+}
+
+.tally-connecting,
+.tally-processing {
+  color: #e0b86a;
+}
+
+.tally-connecting .tally-dot {
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+.tally-ended {
+  color: #8fd3a8;
+}
+
+.tally-error {
+  border-color: rgba(255, 156, 138, 0.35);
+  background: rgba(196, 69, 42, 0.14);
+  color: #ff9c8a;
+}
+
+/* ---- Language + limits --------------------------------------------------------------------- */
+.recorder-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 16px;
+}
+
 .language-picker {
   display: grid;
-  gap: 4px;
-  max-width: 320px;
-  margin-bottom: 12px;
-  font-size: 0.9rem;
-  color: var(--muted);
+  gap: 6px;
+  margin: 0;
+  color: var(--console-muted);
+  font-size: 0.8rem;
 }
 
-.recorder-controls {
+.language-picker > span:first-child {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.language-picker select {
+  min-height: 42px;
+  border-color: var(--console-rule-strong);
+  background: var(--console-field);
+  color: var(--console-text);
+}
+
+.language-picker select:hover {
+  border-color: rgba(246, 241, 231, 0.42);
+}
+
+.language-picker .select-wrap > .icon {
+  color: var(--console-muted);
+}
+
+.console-note {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 4px;
+  text-align: right;
+}
+
+.console-note-label {
+  color: var(--console-muted);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.console-note-value {
+  color: var(--console-text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Transcript screen --------------------------------------------------------------------- */
+.transcript-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 286px;
+  padding: 15px 17px 18px;
+  border: 1px solid var(--console-rule);
+  border-radius: var(--radius-lg);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.transcript-head {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-}
-
-.badge {
-  padding: 2px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-.badge-listening {
-  color: var(--ok);
-  border-color: var(--ok);
-}
-
-.badge-error {
-  color: var(--danger);
-  border-color: var(--danger);
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--console-rule);
 }
 
 .transcript {
-  margin-top: 12px;
-  min-height: 96px;
-  padding: 12px;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius);
-  font-size: 1.15rem;
-  line-height: 1.7;
+  flex: 1;
+  min-height: 180px;
+  color: var(--console-text);
+  font-family: var(--font-serif);
+  font-size: clamp(1.3rem, 1.9vw, 1.62rem);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
   overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+.transcript .final {
+  animation: ink-in 320ms var(--ease-out) both;
 }
 
 .transcript .interim {
-  color: var(--interim);
+  color: var(--console-muted);
   font-style: italic;
 }
 
-.transcript .placeholder,
+.transcript .placeholder {
+  display: block;
+  max-width: 38ch;
+  color: var(--console-muted);
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  font-style: normal;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+
+.transcript-screen.is-listening .transcript::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  border-radius: 1px;
+  background: var(--vermilion);
+  vertical-align: -0.12em;
+  animation: caret-blink 1.1s steps(2, start) infinite;
+}
+
+/* ---- Input level ribbon (signature) -------------------------------------------------------- */
+.level {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 138px;
+  height: 26px;
+  flex: none;
+}
+
+.level-bar {
+  display: block;
+  width: 3px;
+  height: 100%;
+  flex: none;
+  border-radius: 2px;
+  background: var(--console-text);
+  opacity: 0.2;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.level.is-active .level-bar {
+  background: var(--vermilion);
+  opacity: 0.88;
+}
+
+/* ---- Controls ------------------------------------------------------------------------------ */
+.recorder-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.record-button {
+  min-height: 52px;
+  padding: 0 24px 0 19px;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  box-shadow: 0 12px 26px -14px rgba(196, 69, 42, 0.85);
+}
+
+.record-button .icon {
+  width: 19px;
+  height: 19px;
+}
+
+.recorder-status {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+  margin-left: auto;
+}
+
+.quota {
+  display: flex;
+  gap: 3px;
+}
+
+.quota-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--console-rule-strong);
+}
+
+.quota-dot.on {
+  background: #e0654a;
+}
+
+.quota-text {
+  color: var(--console-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-align: right;
+}
+
+.recorder-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  color: var(--console-muted);
+  font-size: 0.75rem;
+}
+
+.recorder-hints span + span::before {
+  content: '·';
+  margin-right: 14px;
+  color: var(--console-rule-strong);
+}
+
+/* ---- Messages ------------------------------------------------------------------------------ */
 .hint {
-  color: var(--muted);
+  color: var(--console-muted);
+  font-size: 0.82rem;
 }
 
-.message {
-  margin: 12px 0 0;
+.message-console {
+  border-color: var(--console-rule);
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--console-text);
 }
 
-.message.error {
-  color: var(--danger);
+.message-console.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  border-color: rgba(255, 156, 138, 0.3);
+  background: rgba(196, 69, 42, 0.14);
+  color: #ffc9bc;
+}
+
+.message-icon {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex: none;
 }
 
 .unsaved {
+  margin-top: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--console-rule);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--console-text);
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
   white-space: pre-wrap;
-  padding: 8px 12px;
-  background: var(--bg);
-  border-radius: var(--radius);
+  overflow-wrap: anywhere;
 }
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: var(--space);
-  background: rgb(0 0 0 / 0.5);
-  z-index: 10;
-}
+/* ---- Responsive ---------------------------------------------------------------------------- */
+@media (max-width: 560px) {
+  .recorder-panel {
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
 
-.modal {
-  width: min(480px, 100%);
-  max-height: 90vh;
-  overflow: auto;
-  padding: 20px;
-  background: var(--surface);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-}
+  .recorder-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-.modal h2 {
-  margin-top: 0;
-}
+  .console-note {
+    display: none;
+  }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  flex-wrap: wrap;
+  .recorder-controls {
+    align-items: stretch;
+  }
+
+  .record-button {
+    width: 100%;
+  }
+
+  .recorder-status {
+    width: 100%;
+    margin-left: 0;
+    justify-items: start;
+  }
+
+  .quota-text {
+    text-align: left;
+  }
+
+  .transcript-screen {
+    min-height: 250px;
+  }
+
+  .level {
+    width: 104px;
+  }
+
+  .level-bar:nth-child(n + 20) {
+    display: none;
+  }
+
+  .recorder-hints {
+    gap: 4px 12px;
+  }
+
+  .recorder-hints span + span::before {
+    content: none;
+  }
 }

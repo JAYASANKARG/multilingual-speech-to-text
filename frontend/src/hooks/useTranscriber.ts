@@ -12,12 +12,14 @@ export function useTranscriber() {
   const [slowConnect, setSlowConnect] = useState(false)
   const wsRef = useRef<WebSocket | null>(null)
   const captureRef = useRef<Capture | null>(null)
+  const levelRef = useRef(0)
   const listeningRef = useRef(false)
   const bufferRef = useRef<ArrayBuffer[]>([])
 
   const teardown = useCallback(() => {
     captureRef.current?.stop()
     captureRef.current = null
+    levelRef.current = 0
     listeningRef.current = false
     bufferRef.current = []
     const ws = wsRef.current
@@ -50,7 +52,9 @@ export function useTranscriber() {
         else if (bufferRef.current.length < MAX_BUFFERED_FRAMES) bufferRef.current.push(frame)
       }
       try {
-        captureRef.current = await startCapture(sendFrame)
+        captureRef.current = await startCapture(sendFrame, (level) => {
+          levelRef.current = level
+        })
       } catch (err) {
         const kind = err instanceof CaptureError ? err.kind : 'mic_unavailable'
         const message = err instanceof Error ? err.message : 'Microphone unavailable.'
@@ -102,5 +106,5 @@ export function useTranscriber() {
     dispatch({ type: 'reset' })
   }, [teardown])
 
-  return { ...state, slowConnect, start, stop, reset }
+  return { ...state, slowConnect, levelRef, start, stop, reset }
 }
