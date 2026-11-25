@@ -1,0 +1,32 @@
+.app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: var(--space);
+}
+
+.app-header h1 {
+  margin: 8px 0 0;
+  font-size: 1.6rem;
+}
+
+.tagline {
+  margin: 4px 0 var(--space);
+  color: var(--muted);
+}
+
+.app-main {
+  display: grid;
+  gap: var(--space);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space);
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}

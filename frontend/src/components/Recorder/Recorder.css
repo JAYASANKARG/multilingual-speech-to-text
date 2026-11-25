@@ -1,0 +1,99 @@
+.language-picker {
+  display: grid;
+  gap: 4px;
+  max-width: 320px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.recorder-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.badge-listening {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+
+.badge-error {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.transcript {
+  margin-top: 12px;
+  min-height: 96px;
+  padding: 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  font-size: 1.15rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.transcript .interim {
+  color: var(--interim);
+  font-style: italic;
+}
+
+.transcript .placeholder,
+.hint {
+  color: var(--muted);
+}
+
+.message {
+  margin: 12px 0 0;
+}
+
+.message.error {
+  color: var(--danger);
+}
+
+.unsaved {
+  white-space: pre-wrap;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space);
+  background: rgb(0 0 0 / 0.5);
+  z-index: 10;
+}
+
+.modal {
+  width: min(480px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.modal h2 {
+  margin-top: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}

@@ -1,0 +1,223 @@
+openapi: 3.1.0
+info:
+  title: Multilingual Speech-to-Text API
+  version: 1.0.0
+  description: >
+    REST contract for transcription history (CRUD), reference data and quota.
+    Live transcription uses the WebSocket protocol in websocket-protocol.md.
+    The running server publishes the generated OpenAPI at /openapi.json; this file is the
+    design-time contract and tests assert the two stay compatible.
+servers:
+  - url: /api
+tags:
+  - name: transcriptions
+  - name: reference
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Liveness probe (also used by uptime pingers and Render)
+      responses:
+        "200":
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, const: ok }
+  /transcriptions:
+    get:
+      operationId: listTranscriptions
+      tags: [transcriptions]
+      summary: List entries, newest first, keyset-paginated (FR-011, FR-018)
+      parameters:
+        - name: q
+          in: query
+          description: Case-insensitive substring match on text
+          schema: { type: string, maxLength: 200 }
+        - name: language
+          in: query
+          description: Only entries whose languages array contains this code
+          schema: { type: string, pattern: "^([a-z]{2,3}|unknown)$" }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - name: cursor
+          in: query
+          description: Opaque value from a previous response's next_cursor
+          schema: { type: string }
+      responses:
+        "200":
+          description: A page of entries
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TranscriptionPage" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+    post:
+      operationId: createTranscription
+      tags: [transcriptions]
+      summary: Create a manual entry (FR-015)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TranscriptionCreate" }
+      responses:
+        "201":
+          description: Created (source=manual, status=complete, engine=null)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transcription" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /transcriptions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getTranscription
+      tags: [transcriptions]
+      summary: Read one entry (FR-012)
+      responses:
+        "200":
+          description: The entry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transcription" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: updateTranscription
+      tags: [transcriptions]
+      summary: Edit text; updates updated_at (FR-013)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TranscriptionUpdate" }
+      responses:
+        "200":
+          description: The updated entry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transcription" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+    delete:
+      operationId: deleteTranscription
+      tags: [transcriptions]
+      summary: Permanently delete an entry (FR-014; confirmation is a UI concern)
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /languages:
+    get:
+      operationId: listLanguages
+      tags: [reference]
+      summary: Languages offered in the language-mode picker (FR-023)
+      responses:
+        "200":
+          description: Supported languages
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Language" }
+  /quota:
+    get:
+      operationId: getQuota
+      tags: [reference]
+      summary: Remaining recording sessions for this visitor (FR-026)
+      description: Also sets the visitor cookie if absent.
+      responses:
+        "200":
+          description: Current allowance
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Quota" }
+components:
+  schemas:
+    Transcription:
+      type: object
+      required: [id, text, languages, engine, source, status, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        text: { type: string, minLength: 1, maxLength: 50000 }
+        languages:
+          type: array
+          items: { type: string, pattern: "^([a-z]{2,3}|unknown)$" }
+        engine:
+          type: [string, "null"]
+          description: Provider/model id; null for manual entries
+          examples: [gemini-3.5-transcribe-live]
+        source: { type: string, enum: [spoken, manual] }
+        status: { type: string, enum: [complete, interrupted] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    TranscriptionCreate:
+      type: object
+      required: [text]
+      additionalProperties: false
+      properties:
+        text:
+          type: string
+          description: Trimmed server-side; must not be blank
+          maxLength: 50000
+    TranscriptionUpdate:
+      type: object
+      required: [text]
+      additionalProperties: false
+      properties:
+        text:
+          type: string
+          maxLength: 50000
+    TranscriptionPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Transcription" }
+        next_cursor:
+          type: [string, "null"]
+          description: Null on the last page
+    Language:
+      type: object
+      required: [code, name, pinnable]
+      properties:
+        code: { type: string, examples: [hi] }
+        name: { type: string, examples: [Hindi] }
+        pinnable:
+          type: boolean
+          description: False for languages offered only via auto-detect
+    Quota:
+      type: object
+      required: [limit, remaining, resets_at]
+      properties:
+        limit: { type: integer, examples: [10] }
+        remaining: { type: integer, minimum: 0 }
+        resets_at:
+          type: [string, "null"]
+          format: date-time
+          description: When the next slot frees up; null if remaining equals limit
+    Error:
+      type: object
+      required: [detail]
+      properties:
+        detail: { type: string }
+  responses:
+    NotFound:
+      description: No entry with that id
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ValidationError:
+      description: Invalid input (e.g. blank text, bad cursor)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail: {}

@@ -1,0 +1,37 @@
+# Secrets and local config (never commit; commit only the *.example templates)
+.env
+.env.*
+!.env.example
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+build/
+wheels/
+
+# Node / frontend
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.tsbuildinfo
+
+# Local scratch: sample audio for the Gemini probe, logs
+backend/tmp/
+*.log
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code local settings (the committed .claude/skills are Spec Kit commands)
+.claude/settings.local.json

@@ -1,0 +1,32 @@
+.meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+}
+
+.meta dt {
+  color: var(--muted);
+}
+
+.meta dd {
+  margin: 0;
+}
+
+.entry-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.chip {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}

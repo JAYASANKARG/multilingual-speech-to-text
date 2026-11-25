@@ -1,0 +1,1 @@
+CREATE DATABASE stt_test OWNER stt;

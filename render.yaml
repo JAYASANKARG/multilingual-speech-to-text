@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: multilingual-speech-to-text
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: STATIC_DIR
+        value: /app/static
+      - key: DATABASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SESSION_SALT
+        sync: false

@@ -1,0 +1,16 @@
+.git
+.specify
+.claude
+specs
+docs
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/dist
+**/.env
+backend/tmp
+frontend/.env
+*.log
+.DS_Store
